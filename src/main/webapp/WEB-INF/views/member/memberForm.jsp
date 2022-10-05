@@ -92,6 +92,33 @@ function fn_overlapped(){
        }
     });  //end ajax	 
  }	
+ 
+function fn_emailCheck(){
+    var email1=$("#email1").val();
+    var email2=$("#email2").val();
+    var email = email1 + '@' + email2;
+    console.log(email);
+    if(email1=='' || email2==''){
+   	 alert("Email을 정상적으로 작성해주세요.");
+   	 return;
+    }
+    $.ajax({
+       type:"post",
+       async:false,  
+       url:"${contextPath}/email/emailCheck.do",
+       dataType:"text",
+       data: {email:email},
+       success:function (data,textStatus){
+    	   console.log(data);
+       },
+       error:function(data,textStatus){
+          alert("에러가 발생했습니다.");ㅣ
+       },
+       complete:function(data,textStatus){
+          //alert("작업을완료 했습니다");
+       }
+    });  //end ajax	 
+}
 </script>
 </head>
 <body>
@@ -216,7 +243,7 @@ function fn_overlapped(){
 				</tr>
 				<tr class="dot_line">
 					<td class="fixed_join">이메일<br>(e-mail)</td>
-					<td><input size="10px"   type="text" name="email1" /> @ <input  size="10px"  type="text"name="email2" /> 
+					<td><input size="10px"   type="text" id="email1" name="email1" /> @ <input  size="10px"  type="text" id="email2" name="email2" /> 
 						  <select name="email2" onChange=""	title="직접입력">
 									<option value="non">직접입력</option>
 									<option value="hanmail.net">hanmail.net</option>
@@ -230,7 +257,9 @@ function fn_overlapped(){
 									<option value="empal.com">empal.com</option>
 									<option value="korea.com">korea.com</option>
 									<option value="freechal.com">freechal.com</option>
-							</select><br> <br> <input type="checkbox" name="emailsts_yn" value="Y" checked /> 쇼핑몰에서 발송하는 e-mail을 수신합니다.</td>
+							</select>
+							<input type="button"  id="btnEmailCheck" value="인증 메일 전송" onClick="fn_emailCheck()"  />
+							<br> <br> <input type="checkbox" name="emailsts_yn" value="Y" checked /> 쇼핑몰에서 발송하는 e-mail을 수신합니다.</td>
 				</tr>
 				<tr class="dot_line">
 					<td class="fixed_join">주소</td>
