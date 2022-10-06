@@ -68,6 +68,13 @@ function goodsDetail(){
 	
 	
 }
+
+function down() {
+    document.body.scrollTop = document.body.scrollHeight;
+}
+function up() {
+	document.body.scrollTop = 0;
+}
 </script>  
  
 <body>    
@@ -128,6 +135,10 @@ function goodsDetail(){
        </c:otherwise>
        </c:choose>
     </div>
+    <div align="center">
+    	<img onclick="up()" src="${contextPath}/resources/image/sdm_icon_05_blue.svg" width="30" >
+    	<img onclick="down()" src="${contextPath}/resources/image/re_sdm_icon_05_blue.svg" width="30" >
+	</div>
 </div>
 </body>
 </html>
