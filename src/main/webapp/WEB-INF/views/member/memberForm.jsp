@@ -85,7 +85,7 @@ function fn_overlapped(){
           }
        },
        error:function(data,textStatus){
-          alert("에러가 발생했습니다.");ㅣ
+          alert("에러가 발생했습니다.");
        },
        complete:function(data,textStatus){
           //alert("작업을완료 했습니다");
@@ -97,7 +97,6 @@ function fn_emailCheck(){
     var email1=$("#email1").val();
     var email2=$("#email2").val();
     var email = email1 + '@' + email2;
-    console.log(email);
     if(email1=='' || email2==''){
    	 alert("Email을 정상적으로 작성해주세요.");
    	 return;
@@ -105,20 +104,66 @@ function fn_emailCheck(){
     $.ajax({
        type:"post",
        async:false,  
-       url:"${contextPath}/email/emailCheck.do",
+       url:"${contextPath}/email/sendEmail.do",
        dataType:"text",
        data: {email:email},
        success:function (data,textStatus){
-    	   console.log(data);
+    	   if(data=='Success'){
+    		   $('#btnCodeCheck').prop('disabled', false);
+    		   $('#code_id').prop('disabled', false);
+    	   }
+    	   else{
+    		   alert("이메일 형식이 잘못되었습니다.\n 다시작성하여주세요.");
+    	   }
        },
        error:function(data,textStatus){
-          alert("에러가 발생했습니다.");ㅣ
+          alert("이메일 전송 에러가 발생했습니다.");
        },
        complete:function(data,textStatus){
-          //alert("작업을완료 했습니다");
+    	   $('#btnEmailCheck').val('재전송');
+    	   $('#email1').prop('readonly', true);
+		   $('#email2').prop('readonly', true);
        }
     });  //end ajax	 
 }
+
+function fn_codeCheck(){
+    var code_id=$('#code_id').val();
+    var email1=$("#email1").val();
+    var email2=$("#email2").val();
+    var code = email1 + '@' + email2 + ',' + code_id;
+    console.log(code);
+    if(code_id==''){
+   	 alert("인증번호를 정상적으로 작성해주세요.");
+   	 return;
+    }
+    $.ajax({
+       type:"post",
+       async:false,  
+       url:"${contextPath}/email/codeCheck.do",
+       dataType:"text",
+       data: {code:code},
+       success:function (data,textStatus){
+    	   if(data=='Success'){
+    		   alert("인증 성공");
+    		   $('#emailcheck_id').val('Success');
+    		   $('#btnEmailCheck').prop('disabled', true);
+        	   $('#btnCodeCheck').prop('disabled', true);
+    		   $('#code_id').prop('readonly', true);
+    		   $('#btnInsertMember_id').prop('disabled', false);
+    	   } else {
+    		   alert("인증코드가 맞지않습니다.\n 다시작성하여주세요.");
+    	   }
+       },
+       error:function(data,textStatus){
+          alert("인증코드 에러 발생.");
+       },
+       complete:function(data,textStatus){
+       }
+    }); 
+}
+ 
+
 </script>
 </head>
 <body>
@@ -258,7 +303,10 @@ function fn_emailCheck(){
 									<option value="korea.com">korea.com</option>
 									<option value="freechal.com">freechal.com</option>
 							</select>
-							<input type="button"  id="btnEmailCheck" value="인증 메일 전송" onClick="fn_emailCheck()"  />
+							<input type="button"  id="btnEmailCheck" value="인증메일전송" onClick="fn_emailCheck()" />
+							<br>
+							<input type="text" width="100" name="code_id"  id="code_id" disabled="disabled"/>
+							<input type="button"  id="btnCodeCheck" value="인증확인" onClick="fn_codeCheck()" disabled="disabled" />
 							<br> <br> <input type="checkbox" name="emailsts_yn" value="Y" checked /> 쇼핑몰에서 발송하는 e-mail을 수신합니다.</td>
 				</tr>
 				<tr class="dot_line">
@@ -282,7 +330,7 @@ function fn_emailCheck(){
 		<table align=center>
 		<tr >
 			<td >
-				<input type="submit"  value="회원 가입">
+				<input type="submit" id="btnInsertMember_id"  value="회원 가입" disabled="disabled">
 				<input  type="reset"  value="다시입력">
 			</td>
 		</tr>

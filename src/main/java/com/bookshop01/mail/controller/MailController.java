@@ -1,6 +1,10 @@
 package com.bookshop01.mail.controller;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,27 +21,56 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.bookshop01.mail.service.MailService;
 
 @Controller("emailController")
-@RequestMapping(value="/email")
+@RequestMapping(value = "/email")
 @EnableAsync
 public class MailController {
-    @Autowired
-    private MailService mailService;
- 
-    //@Override
-	@RequestMapping(value="/emailCheck.do" ,method = RequestMethod.POST)
-    public ResponseEntity sendSimpleMail(@RequestParam("email") String email, HttpServletRequest request, HttpServletResponse response) 
-                                                          throws Exception{
-    	ResponseEntity resEntity = null;
-    	request.setCharacterEncoding("utf-8");
-    	response.setContentType("text/html;charset=utf-8");
-        PrintWriter out = response.getWriter();
-        String temp = "abc";
-        mailService.sendMail("qkr5759@naver.com","BookShop 인증메일","인증번호 : " + temp);
-        out.print("메일을 보냈습니다!");
-        
-        
+	@Autowired
+	private MailService mailService;
+	private Map<String, String> codeMap = new HashMap<String, String>();
+
+	@RequestMapping(value = "/sendEmail.do", method = RequestMethod.POST)
+	public ResponseEntity sendSimpleMail(@RequestParam("email") String email, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		ResponseEntity resEntity = null;
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		boolean emailCheck = isValidEmail(email);
+		if(emailCheck == false) {
+			String result = "False";
+			resEntity = new ResponseEntity(result, HttpStatus.OK);
+			return resEntity;
+		}
+		String checkCode = String.format("%05d", (int)(Math.random() * 100000));
+		codeMap.put(email, checkCode);
+		mailService.sendMail("qkr5759@naver.com", "BookShop 인증메일", "인증번호 : " + checkCode);
 		String result = "Success";
-		resEntity =new ResponseEntity(result, HttpStatus.OK);
+		resEntity = new ResponseEntity(result, HttpStatus.OK);
 		return resEntity;
-    }
+	}
+
+	@RequestMapping(value = "/codeCheck.do", method = RequestMethod.POST)
+	public ResponseEntity codeCheck(@RequestParam("code") String code, HttpServletRequest request,
+			HttpServletResponse response) throws Exception {
+		ResponseEntity resEntity = null;
+		String result = "False";
+		request.setCharacterEncoding("utf-8");
+		response.setContentType("text/html;charset=utf-8");
+		
+		String[] key = code.split(",");
+		if(codeMap.get(key[0]).equals(key[1]))
+			result = "Success";
+		resEntity = new ResponseEntity(result, HttpStatus.OK);
+		return resEntity;
+	}
+
+	private static boolean isValidEmail(String email) {
+		boolean err = false;
+		String regex = "^[_a-z0-9-]+(.[_a-z0-9-]+)*@(?:\\w+\\.)+\\w+$";
+		Pattern p = Pattern.compile(regex);
+		Matcher m = p.matcher(email);
+		if (m.matches()) {
+			err = true;
+		}
+		return err;
+	}
 }
