@@ -42,7 +42,7 @@ public class MailController {
 		}
 		String checkCode = String.format("%05d", (int)(Math.random() * 100000));
 		codeMap.put(email, checkCode);
-		mailService.sendMail("qkr5759@naver.com", "BookShop 인증메일", "인증번호 : " + checkCode);
+		mailService.sendMail(email, "BookShop 인증메일", "인증번호 : " + checkCode);
 		String result = "Success";
 		resEntity = new ResponseEntity(result, HttpStatus.OK);
 		return resEntity;
